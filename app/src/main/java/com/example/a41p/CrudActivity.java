@@ -27,11 +27,15 @@ public class CrudActivity extends AppCompatActivity {
         final EditText editTextDescription = findViewById(R.id.editTextTaskDescription);
         final EditText editTextDueDate = findViewById(R.id.editTextTaskDueDate);
         final Button buttonSave = findViewById(R.id.buttonSaveTask);
-        final Button btnEdit = findViewById(R.id.btn_edit);
+
+        // Initialize isEditMode and taskId at the beginning of onCreate
+        boolean isEditMode = getIntent().getBooleanExtra("editMode", false);
+        int taskId = getIntent().getIntExtra("taskId", -1);  // Declare taskId here
+
+        DBHelper dbHelper = new DBHelper(this);
 
 
         if (getIntent().hasExtra("taskId")) {
-            int taskId = getIntent().getIntExtra("taskId", -1);
             String title = getIntent().getStringExtra("title");
             String description = getIntent().getStringExtra("description");
             String dueDate = getIntent().getStringExtra("dueDate");
@@ -43,8 +47,6 @@ public class CrudActivity extends AppCompatActivity {
         }
 
 
-
-
         buttonSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -52,9 +54,9 @@ public class CrudActivity extends AppCompatActivity {
                 String description = editTextDescription.getText().toString().trim();
                 String dueDate = editTextDueDate.getText().toString().trim();
 
-                // Validate that none of the fields are empty
-                if (title.isEmpty()) {
-                    Toast.makeText(CrudActivity.this, "Please enter a title.", Toast.LENGTH_SHORT).show();
+                // Basic validation checks
+                if (title.isEmpty() || description.isEmpty() || dueDate.isEmpty()) {
+                    Toast.makeText(CrudActivity.this, "Please fill all the fields.", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -68,32 +70,28 @@ public class CrudActivity extends AppCompatActivity {
                     return;
                 }
 
-//                // Validate the due date format
-//                if (!isValidDate(dueDate)) {
-//                    Toast.makeText(CrudActivity.this, "Please enter a valid date in the format dd/MM/yyyy.", Toast.LENGTH_SHORT).show();
-//                    return;
-//                }
 
-                // If validation passes, insert the task into the database
                 DBHelper dbHelper = new DBHelper(CrudActivity.this);
-                dbHelper.insertTask(title, description, dueDate);
-                Toast.makeText(CrudActivity.this, "Task Saved", Toast.LENGTH_SHORT).show();
-                finish(); // Close activity and return to MainActivity
-            }
 
-            private boolean isValidDate(String dueDate) {
-
-                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
-                sdf.setLenient(false); // Don't automatically correct dates
-                try {
-                    String dateString = new String();
-                    sdf.parse(dateString); // Try to parse the string
-                    return true; // If successful, return true
-                } catch (ParseException e) {
-                    return false; // If parsing fails, return false
+                // Check if we are in edit mode
+                if (isEditMode && taskId != -1) {
+                    // Update the existing task
+                    dbHelper.updateTask(new Task(taskId, title, description, dueDate));
+                    Toast.makeText(CrudActivity.this, "Task updated successfully.", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Insert a new task
+                    dbHelper.insertTask(title, description, dueDate);
+                    Toast.makeText(CrudActivity.this, "Task added successfully.", Toast.LENGTH_SHORT).show();
                 }
+                finish(); // Return to MainActivity
             }
         });
+
+
+
+
+
+
 
     }
 }

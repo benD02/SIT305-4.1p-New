@@ -42,6 +42,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         holder.descriptionTextView.setText(task.getDescription());
         holder.textViewDate.setText(task.getDueDate());
 
+
         //ON click listener for the edit task
         holder.btnEdit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,6 +73,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         });
 
     }
+
 
     @Override
     public int getItemCount() {

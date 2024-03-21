@@ -56,6 +56,18 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
+    public int updateTask(Task task) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("title", task.getTitle());
+        values.put("description", task.getDescription());
+        values.put("dueDate", task.getDueDate());
+
+        // Updating the task in the database
+        int rowsAffected = db.update("tasks", values, "id = ?", new String[] { String.valueOf(task.getId()) });
+        db.close();
+        return rowsAffected; // Return the number of rows affected
+    }
 
 
 
