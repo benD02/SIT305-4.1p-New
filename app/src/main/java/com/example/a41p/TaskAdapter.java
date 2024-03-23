@@ -45,14 +45,26 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
         //ON click listener for the edit task
         holder.btnEdit.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
+
                 Intent intent = new Intent(context, CrudActivity.class);
                 intent.putExtra("taskId", task.getId());
                 intent.putExtra("title", task.getTitle());
                 intent.putExtra("description", task.getDescription());
                 intent.putExtra("dueDate", task.getDueDate());
                 context.startActivity(intent);
+
+                DBHelper dbHelper = new DBHelper(context);
+                dbHelper.deleteTask(task.getId());
+
+                // Remove task from the list and notify adapter
+                taskList.remove(position  );
+                notifyItemRemoved(position);
+                notifyItemRangeChanged(position , taskList.size());
+
+                Toast.makeText(context, "Task Deleted", Toast.LENGTH_SHORT).show();
             }
         });
 
