@@ -47,6 +47,9 @@ public class CrudActivity extends AppCompatActivity {
         }
 
 
+
+
+
         buttonSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -55,8 +58,8 @@ public class CrudActivity extends AppCompatActivity {
                 String dueDate = editTextDueDate.getText().toString().trim();
 
                 // Basic validation checks
-                if (title.isEmpty() || description.isEmpty() || dueDate.isEmpty()) {
-                    Toast.makeText(CrudActivity.this, "Please fill all the fields.", Toast.LENGTH_SHORT).show();
+                if (title.isEmpty()) {
+                    Toast.makeText(CrudActivity.this, "Please enter a title.", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -70,20 +73,32 @@ public class CrudActivity extends AppCompatActivity {
                     return;
                 }
 
+                // Date format validation
+                if (!isValidDate(dueDate)) {
+                    Toast.makeText(CrudActivity.this, "Please enter a valid date in the format dd/MM/yyyy.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-                DBHelper dbHelper = new DBHelper(CrudActivity.this);
-
-                // Check if we are in edit mode
+                // Proceed with saving the task
                 if (isEditMode && taskId != -1) {
-                    // Update the existing task
                     dbHelper.updateTask(new Task(taskId, title, description, dueDate));
                     Toast.makeText(CrudActivity.this, "Task updated successfully.", Toast.LENGTH_SHORT).show();
                 } else {
-                    // Insert a new task
                     dbHelper.insertTask(title, description, dueDate);
                     Toast.makeText(CrudActivity.this, "Task added successfully.", Toast.LENGTH_SHORT).show();
                 }
                 finish(); // Return to MainActivity
+            }
+
+            private boolean isValidDate(String dueDate) {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
+                sdf.setLenient(false); // Don't automatically correct dates
+                try {
+                    sdf.parse(dueDate); // Try to parse the string
+                    return true; // If successful, return true
+                } catch (ParseException e) {
+                    return false; // If parsing fails, return false
+                }
             }
         });
 
